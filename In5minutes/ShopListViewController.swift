@@ -77,15 +77,36 @@ class ShopListViewController: UIViewController, UITableViewDelegate, UITableView
         return (view.frame.height - navBarHeight) / 3
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // セルの選択状態を解除
+        tableView.deselectRow(at: indexPath, animated: true)
+        // Segueの実行
+        performSegue(withIdentifier: "PushShopDetail", sender: indexPath)
+    }
+    
     // MARK: - UITableViewDataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return yls.shops.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ShopListItem") as! ShopListItemTableViewCell
-        cell.shop = yls.shops[indexPath.row]
-        return cell
+        
+        if yls.shops.count > 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ShopListItem") as! ShopListItemTableViewCell
+            cell.shop = yls.shops[indexPath.row]
+            return cell
+        }
+        return UITableViewCell()
+    }
+    
+    // MARK: - Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "PushShopDetail" {
+            let vc = segue.destination as! ShopDetailViewController
+            if let indexPath = sender as? IndexPath {
+                vc.shop = yls.shops[indexPath.row]
+            }
+        }
     }
 
 }

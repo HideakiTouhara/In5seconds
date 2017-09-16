@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 class SearchTopViewController: UIViewController {
     
@@ -26,6 +27,10 @@ class SearchTopViewController: UIViewController {
     
     var preQueries = [String]()
     
+    let ls = LocationService()
+    let nc = NotificationCenter.default
+    var observers = [NSObjectProtocol]()
+    var here: (lat: Double, lon: Double)? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,6 +41,75 @@ class SearchTopViewController: UIViewController {
         cards.append(bread)
         cards.append(pasta)
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        // 初期値に戻す
+        basicCard.center = self.view.center
+        basicCard.transform = CGAffineTransform.identity
+        for card in cards {
+            card.center = self.view.center
+            card.transform = CGAffineTransform.identity
+        }
+        selectedCardCount = 0
+        preQueries = []
+        
+        
+        // 位置情報取得を禁止している場合
+        observers.append(
+            nc.addObserver(forName: .authDenied, object: nil, queue: nil, using: {
+                notification in
+                // 位置情報がONになっていないダイアログ表示
+                self.present(self.ls.locationServiceDisableAlert, animated: true, completion: nil)
+            })
+        )
+        
+        // 位置情報取得を制限している場合
+        observers.append(
+            nc.addObserver(forName: .authRestricted, object: nil, queue: nil, using: {
+                notification in
+                // 位置情報が制限されているダイアログ
+                self.present(self.ls.locationServiceRestrictedAlert, animated: true, completion: nil)
+            })
+        )
+        
+        // 位置情報取得に失敗した場合
+        observers.append(
+            nc.addObserver(forName: .didFailLocation, object: nil, queue: nil, using: {
+                notification in
+                // 位置情報取得に失敗したダイアログ
+                self.present(self.ls.locationServiceDidFailAlert, animated: true, completion: nil)
+            })
+        )
+        
+        // 位置情報を取得した場合
+        observers.append(
+            nc.addObserver(forName: .didUpdateLocation, object: nil, queue: nil, using: {
+                notification in
+                
+                
+                // 位置情報が渡されていなければ早期離脱
+                guard let userInfo = notification.userInfo as? [String: CLLocation] else {
+                    return
+                }
+                
+                // userInfoがキー location を持っていなければ早期離脱
+                guard let clloc = userInfo["location"] else {
+                    return
+                }
+                
+                self.here = (lat: clloc.coordinate.latitude, lon: clloc.coordinate.longitude)
+            })
+        )
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        // Notificationの待ち受けを解除する
+        for observer in observers {
+            nc.removeObserver(observer)
+        }
+        
+        observers = []
     }
 
     override func didReceiveMemoryWarning() {
@@ -77,12 +151,13 @@ class SearchTopViewController: UIViewController {
             thumbImageView.tintColor = UIColor.red
         }
         
-        thumbImageView.alpha = abs(xFromCenter) / (view.bounds.size.width / 2)
+        thumbImageView.alpha = abs(xFromCenter) / (view.bounds.size.width / 3)
         
         if sender.state ==  UIGestureRecognizerState.ended {
             
             if card.center.x < 75 {
-                UIView.animate(withDuration: 0.05, animations: {
+                ls.startUpdatingLocation()
+                UIView.animate(withDuration: 0.4, animations: {
                     self.cards[self.selectedCardCount].center = CGPoint(x: self.cards[self.selectedCardCount].center.x - 300, y: self.cards[self.selectedCardCount].center.y)
                 })
                 card.center = self.view.center
@@ -97,7 +172,8 @@ class SearchTopViewController: UIViewController {
                 return
                 
             } else if card.center.x > (view.frame.width - 75) {
-                UIView.animate(withDuration: 0.05, animations: {
+                ls.startUpdatingLocation()
+                UIView.animate(withDuration: 0.4, animations: {
                     self.cards[self.selectedCardCount].center = CGPoint(x: self.cards[self.selectedCardCount].center.x + 300, y: self.cards[self.selectedCardCount].center.y)
                 })
                 card.center = self.view.center
@@ -113,7 +189,7 @@ class SearchTopViewController: UIViewController {
                 }
                 return
             }
-            UIView.animate(withDuration: 0.05, animations: {
+            UIView.animate(withDuration: 0.4, animations: {
                 card.center = self.view.center
                 card.transform = CGAffineTransform.identity
                 self.cards[self.selectedCardCount].center = self.view.center
@@ -125,30 +201,43 @@ class SearchTopViewController: UIViewController {
     
     func selectQueries(preQueries: [String], vc: ShopListViewController) {
         var selectedQuery = [String]()
+        var searchWords = [String]()
         for query in preQueries {
             if query == "meat" {
-                selectedQuery.append("ステーキ")
+                searchWords = ["ステーキ", "焼肉", "肉", "ハンバーグ"]
+//                selectedQuery.append("ハンバーグ")
+                selectedQuery.append(searchWords[Int(arc4random_uniform(UInt32(searchWords.count)))])
             } else if query == "jfood" {
-                selectedQuery.append("寿司")
+                searchWords = ["寿司", "魚", "和食"]
+                selectedQuery.append(searchWords[Int(arc4random_uniform(UInt32(searchWords.count)))])
+//                selectedQuery.append("寿司")
             } else if query == "cfood" {
-                selectedQuery.append("ラーメン")
+                searchWords = ["ラーメン", "中華", "そば"]
+                selectedQuery.append(searchWords[Int(arc4random_uniform(UInt32(searchWords.count)))])
+//                selectedQuery.append("ラーメン")
             } else if query == "bread" {
-                selectedQuery.append("パン")
+                searchWords = ["パン", "フレンチ", "ファミレス"]
+                selectedQuery.append(searchWords[Int(arc4random_uniform(UInt32(searchWords.count)))])
+//                selectedQuery.append("パン")
             } else if query == "pasta" {
-                selectedQuery.append("パスタ")
+                searchWords = ["パスタ", "イタリアン", "ピザ"]
+                selectedQuery.append(searchWords[Int(arc4random_uniform(UInt32(searchWords.count)))])
+//                selectedQuery.append("パスタ")
+            } else {
+                searchWords = ["カフェ", "ハンバーガー", "牛丼"]
+                selectedQuery.append(searchWords[Int(arc4random_uniform(UInt32(searchWords.count)))])
             }
         }
         
         var qc: QueryCondition = QueryCondition()
-        var success: Bool = false
+        qc.lat = self.here?.lat
+        qc.lon = self.here?.lon
         
         switch selectedQuery.count {
         case 0:
-            qc.query = "うどん"
+//            qc.query = selectedQuery[0]
             vc.yls.loadData(condition: qc, reset: true, startNumber: 1)
-            qc.query = "牛丼"
             vc.yls.loadData(condition: qc, startNumber: 2)
-            qc.query = "肉"
             vc.yls.loadData(condition: qc, startNumber: 3)
             break
         case 1:
@@ -201,7 +290,5 @@ class SearchTopViewController: UIViewController {
             break
         }
     }
-
-
 }
 

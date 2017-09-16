@@ -37,9 +37,9 @@ class ShopListItemTableViewCell: UITableViewCell {
             if shop.catchCopy != nil {
                 catchCopy.isHidden = false
                 catchCopy.text = shop.catchCopy
-                catchCopy.numberOfLines = 0
-                catchCopy.lineBreakMode = .byWordWrapping
-                sizeToFit()
+//                catchCopy.numberOfLines = 0
+//                catchCopy.lineBreakMode = .byWordWrapping
+//                sizeToFit()
             } else {
                 catchCopy.isHidden = true
                 nameYFromTop.constant = photo.frame.size.height / 2
@@ -49,8 +49,8 @@ class ShopListItemTableViewCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        catchCopy.numberOfLines = 0
-        catchCopy.sizeThatFits(CGSize(width: self.frame.width, height: CGFloat.greatestFiniteMagnitude))
+//        catchCopy.numberOfLines = 0
+//        catchCopy.sizeThatFits(CGSize(width: self.frame.width, height: CGFloat.greatestFiniteMagnitude))
     }
 
     override func awakeFromNib() {

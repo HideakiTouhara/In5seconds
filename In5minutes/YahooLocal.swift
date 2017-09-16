@@ -157,6 +157,7 @@ public class YahooLocalSearch {
         params["output"] = "json"
         params["start"] = String(startNumber)
         params["results"] = String(perPage)
+//        params["open"] = "now"
         
         // API実行開始を通知する
         NotificationCenter.default.post(name: .apiLoadStart, object: nil)
@@ -223,7 +224,6 @@ public class YahooLocalSearch {
                         shop.station = "\(line)"
                     }
                 }
-                print(shop)
                 self.shops.append(shop)
             }
             if let total = json["ResultInfo"]["Total"].int {
