@@ -115,7 +115,7 @@
                             <view contentMode="scaleToFill" restorationIdentifier="jfood" translatesAutoresizingMaskIntoConstraints="NO" id="gVx-oe-L5M" userLabel="jfood">
                                 <rect key="frame" x="48" y="160" width="279" height="346"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sushi" translatesAutoresizingMaskIntoConstraints="NO" id="EqV-Jd-WjQ">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sushi2" translatesAutoresizingMaskIntoConstraints="NO" id="EqV-Jd-WjQ">
                                         <rect key="frame" x="0.0" y="0.0" width="279" height="346"/>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="寿司" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hi0-fC-B1F" userLabel="寿司">
@@ -556,6 +556,6 @@
         <image name="meat" width="180" height="135"/>
         <image name="pasta" width="280" height="373"/>
         <image name="ramen" width="680" height="510"/>
-        <image name="sushi" width="1512" height="2016"/>
+        <image name="sushi2" width="350" height="233"/>
     </resources>
 </document>
